@@ -1,5 +1,6 @@
-package com.bookingqa.utils;
+package utils;
 
+import com.bookingqa.utils.PriceCalculator;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
