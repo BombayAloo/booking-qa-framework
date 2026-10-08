@@ -28,6 +28,9 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 - [ ] Kiedy `git restore --staged`, a kiedy `git rm --cached`
 - [ ] Fazy cyklu życia Mavena po kolei
 - [ ] Zmienna zwykła vs eksportowana (fish)
+- [ ] `git fetch` vs `git pull`
+- [ ] Gałąź lokalna vs zdalna vs śledzona (upstream)
+- [ ] Dlaczego JUnit tworzy nową instancję klasy testowej dla każdego testu
 
 ---
 
@@ -88,9 +91,39 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 | `git rm --cached <plik>` | Przestań śledzić plik, który już jest w repo (zostaje na dysku) |
 | `git check-ignore -v <plik>` | Która reguła `.gitignore` ignoruje plik |
 | `git mv <z> <do>` | Przeniesienie pliku z zapisem w Gicie |
+| `git branch` / `git branch -a` | Gałęzie lokalne / lokalne i zdalne |
 | `git branch -M main` | Zmiana nazwy bieżącej gałęzi na `main` |
-| `git push -u origin main` | Wypchnięcie i ustawienie śledzenia gałęzi zdalnej |
+| `git push -u origin main` | Wypchnięcie i ustawienie śledzenia gałęzi zdalnej (potem wystarczy `git push`) |
+| `git remote -v` | Lista repozytoriów zdalnych i ich adresów |
+| `git remote add origin <url>` | Dodanie repozytorium zdalnego |
+| `git remote rename <stara> <nowa>` | Zmiana nazwy repozytorium zdalnego |
+| `git push origin --delete <gałąź>` | Usunięcie gałęzi na serwerze |
+| `git fetch` | Pobranie zmian z serwera bez scalania |
+| `git pull` | `fetch` + scalenie z bieżącą gałęzią |
+| `git fetch --prune` | Usunięcie lokalnych odnośników do gałęzi skasowanych na serwerze |
+| `git remote set-head origin -a` | Ustawienie `origin/HEAD` na domyślną gałąź serwera |
 | `git config --global user.name/user.email` | Autor commitów |
+
+### GitHub CLI (`gh`)
+| Komenda | Do czego |
+| --- | --- |
+| `sudo pacman -S github-cli` | Instalacja |
+| `gh auth login` | Logowanie przez przeglądarkę (też dla Gita w terminalu) |
+| `gh auth status` | Czy i jako kto jestem zalogowany |
+| `gh repo view --web` | Otwarcie repozytorium w przeglądarce |
+| `gh repo edit --default-branch main` | Zmiana domyślnej gałęzi |
+| `gh pr create` / `gh pr list` | Utworzenie / lista Pull Requestów |
+
+### IntelliJ
+| Skrót / miejsce | Do czego |
+| --- | --- |
+| `Ctrl+Alt+L` | Formatowanie pliku |
+| `Ctrl+Alt+O` | Usunięcie nieużywanych importów |
+| `Alt+6` (Problems) | Lista ostrzeżeń i błędów w pliku |
+| Code → Inspect Code | Analiza kodu dla wybranego zakresu |
+| `Ctrl+Shift+K` | Push |
+| `Ctrl+Shift+F10` | Uruchomienie testu/klasy pod kursorem |
+| Refactor → Move Class (`F6`) | Przeniesienie klasy z poprawą pakietu i importów |
 
 ### Maven
 | Komenda | Do czego |
@@ -124,6 +157,17 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 | Staging (poczekalnia) | Pliki dodane przez `git add`, czekające na commit |
 | Guard clause | Walidacja na początku metody, która od razu przerywa działanie przy złych danych |
 | Immutable | Obiekt, którego nie można zmienić; metody zwracają nowy obiekt (np. `BigDecimal`, `String`) |
+| CLI | Command Line Interface – program obsługiwany komendami tekstowymi w terminalu (np. `git`, `mvn`, `docker`, `gh`) |
+| Remote | Repozytorium zdalne (np. na GitHubie), z którym synchronizuję lokalne repo |
+| `origin` | Konwencjonalna nazwa głównego remote'a; tylko nazwa, nie słowo kluczowe |
+| Upstream (gałąź śledzona) | Gałąź zdalna powiązana z lokalną (`-u`); dzięki niej `git push`/`git pull` nie wymagają argumentów |
+| `HEAD` | Wskaźnik na commit/gałąź, na której obecnie jestem |
+| `origin/HEAD` | Domyślna gałąź repozytorium zdalnego |
+| Gałąź domyślna | Gałąź, którą widać po wejściu w repo i do której domyślnie kierowane są PR; nie można jej usunąć |
+| Personal Access Token (PAT) | Hasło-token do API i Gita przez HTTPS, z ograniczonymi uprawnieniami i datą ważności |
+| Klucz SSH | Para kluczy (prywatny u mnie, publiczny na serwerze) do uwierzytelniania bez hasła |
+| `~/.m2/repository` | Lokalny cache bibliotek pobranych przez Mavena |
+| Conventional Commits | Konwencja opisów commitów: `typ: opis` (`feat`, `fix`, `test`, `refactor`, `docs`, `chore`, `ci`) |
 
 ---
 
@@ -202,6 +246,19 @@ O: Linię statusu (wersja protokołu, kod, opis), nagłówki (np. `Content-Type`
 - Test w pakiecie domyślnym, potem w `src/main/java` (nie kompilował się, bo JUnit ma scope `test`), potem w pakiecie `utils` – docelowo `src/test/java/com/bookingqa/utils`.
 - Zmiana typu na `BigDecimal` – błąd konwersji, bo `BigDecimal` to obiekt bez operatorów `*`, `+`.
 - IntelliJ zgłaszał ostrzeżenie przed commitem, którego nie dało się otworzyć – można je znaleźć w oknie Problems (`Alt+6`) lub przez Code → Inspect Code.
+- `git push -u origin main` → „'origin' does not appear to be a git repository”. IntelliJ przy publikacji nazwał remote `booking-qa-framework`. Rozwiązanie: `git remote rename booking-qa-framework origin`.
+- Terminal pytał o hasło do GitHuba, a loguję się przez Google. GitHub nie przyjmuje haseł dla Gita przez HTTPS – zalogowałem się przez `gh auth login` (przeglądarka + jednorazowy kod).
+- `git push origin --delete master` → „refusing to delete the current branch”. Gałęzi domyślnej nie można usunąć – najpierw zmiana domyślnej na `main` (`gh repo edit --default-branch main`), potem usunięcie i `git fetch --prune`.
+
+**Weryfikacja końcowa sesji 1**
+- `mvn clean verify` → `Tests run: 4, Failures: 0`, `BUILD SUCCESS`
+- `git ls-files` → tylko `.gitignore`, `NOTES.md`, `pom.xml`, `src/...`
+- `git branch -a` → `main`, `origin/HEAD -> origin/main`, `origin/main`
+
+**Do poprawy na początku sesji 2**
+- [ ] Formatowanie (`Ctrl+Alt+L`) w `PriceCalculator` i teście
+- [ ] Test dla ujemnej liczby nocy (`-1`) i sprawdzenie komunikatu wyjątku (`hasMessageContaining`)
+- [ ] Pole `calculator` w klasie testowej zamiast `new PriceCalculator()` w każdym teście
 
 **Pytania rekrutacyjne**
 
@@ -231,6 +288,57 @@ O: Gdy w jednym teście sprawdzam kilka niezależnych warunków i chcę zobaczy�
 
 **P: Dlaczego plik dodany do `.gitignore` nadal pojawia się w `git status`?**
 O: Bo był już śledzony (dodany przez `git add` lub zacommitowany). `.gitignore` działa tylko na pliki nieśledzone. Rozwiązanie: `git restore --staged` (jeśli nie był w commicie) albo `git rm --cached` (jeśli był).
+
+**P: Czym różni się `git fetch` od `git pull`?**
+O: `fetch` tylko pobiera zmiany z serwera i aktualizuje gałęzie zdalne (`origin/main`), nie ruszając mojej pracy. `pull` to `fetch` + scalenie (merge lub rebase) z bieżącą gałęzią. `fetch` jest bezpieczny – najpierw sprawdzam, co przyszło, potem decyduję.
+
+**P: Co robi `-u` w `git push -u origin main`?**
+O: Ustawia gałąź śledzoną (upstream): lokalny `main` jest powiązany z `origin/main`. Potem `git push`, `git pull` i `git status` (ahead/behind) działają bez podawania nazw.
+
+**P: Jak uwierzytelnić się w GitHubie z terminala?**
+O: Nie hasłem. Opcje: Personal Access Token przez HTTPS, klucz SSH albo GitHub CLI (`gh auth login`), który konfiguruje Gita automatycznie. W firmach najczęściej SSH lub logowanie przez SSO.
+
+**P: Ile instancji klasy testowej tworzy JUnit?**
+O: Domyślnie nową dla każdej metody testowej (`@TestInstance(Lifecycle.PER_METHOD)`). Dzięki temu pola klasy nie przenoszą stanu między testami i testy są od siebie niezależne. Można to zmienić na `PER_CLASS`.
+
+---
+
+### Wiedza dodatkowa po sesji 1
+
+Rzeczy, które nie padły wprost w zadaniach, ale warto je znać po tym etapie.
+
+**Maven**
+- Biblioteki pobrane przez Mavena trafiają do `~/.m2/repository` i są współdzielone przez wszystkie projekty. Usunięcie tego katalogu wymusza ponowne pobranie (pomocne przy uszkodzonych plikach).
+- `mvn -o` (offline) buduje bez internetu z lokalnego cache.
+- `mvn test -Dtest=PriceCalculatorTest` uruchamia jedną klasę; `-Dtest=PriceCalculatorTest#shouldCalculateDiscount` – jedną metodę.
+- Raporty Surefire są w `target/surefire-reports/` (pliki `.txt` i `.xml`). Plik XML w sesji 34 trafi do Azure DevOps.
+- Maven Wrapper (`mvnw`, katalog `.mvn/`) pozwala uruchomić projekt bez instalowania Mavena, w ustalonej wersji. Popularny w projektach zespołowych i w CI.
+- Wersjonowanie semantyczne (SemVer): `MAJOR.MINOR.PATCH` – zmiana MAJOR (np. JUnit 5 → 6) może łamać kompatybilność, MINOR dodaje funkcje, PATCH naprawia błędy.
+
+**JUnit 6 i AssertJ**
+- Cykl życia testu: `@BeforeAll` (raz, metoda statyczna) → dla każdego testu: nowa instancja klasy → `@BeforeEach` → `@Test` → `@AfterEach` → na końcu `@AfterAll`.
+- Dobry test ma strukturę AAA: Arrange (przygotowanie), Act (wywołanie), Assert (sprawdzenie).
+- Jeden test sprawdza jedno zachowanie; nazwa mówi, co ma się stać (`shouldRejectZeroNights`).
+- AssertJ: `assertThat(x)` zwraca asercje dopasowane do typu – dla `BigDecimal` jest `isEqualByComparingTo`, dla list `containsExactly`, dla wyjątków `assertThatThrownBy(...).hasMessageContaining(...)`.
+- Wartości graniczne do testowania przy regule „powyżej 7 nocy rabat, ≤ 0 błąd”: -1, 0, 1, 7, 8. To technika analizy wartości brzegowych (boundary value analysis).
+
+**Git**
+- Commit = zapis stanu wszystkich śledzonych plików + autor + data + opis + wskaźnik na poprzedni commit.
+- Trzy obszary: katalog roboczy (pliki na dysku) → poczekalnia (`git add`) → repozytorium (`git commit`).
+- Nie zmieniam historii (`--amend`, `rebase`, `push --force`) na gałęziach, które ktoś inny mógł już pobrać.
+- `git diff` pokazuje zmiany niedodane do poczekalni, `git diff --staged` – dodane.
+- Przed commitem: `git status` + `git diff --staged`, żeby wiedzieć, co dokładnie zatwierdzam.
+
+**Bezpieczeństwo**
+- Sekretów nie da się „usunąć” z repozytorium zwykłym commitem – zostają w historii. Jedyne pewne rozwiązanie po wycieku: unieważnić (zmienić) sekret.
+- Narzędzia do skanowania sekretów: `gitleaks`, GitHub secret scanning (sesja 28).
+
+**CLI – czym jest**
+- CLI (Command Line Interface) to sposób obsługi programu przez wpisywanie komend tekstowych, w przeciwieństwie do GUI (okna, przyciski).
+- Budowa komendy: `program podkomenda --opcja argument`, np. `git push -u origin main`, `gh repo edit --default-branch main`.
+- Zalety CLI w automatyzacji: komendy da się zapisać w skrypcie i powtórzyć identycznie, działają na serwerach bez ekranu i w pipeline CI/CD. Dlatego pipeline w Azure DevOps (sesja 34) to w praktyce lista komend CLI (`mvn ...`, `git ...`).
+- Pomoc: `<program> --help` lub `man <program>`, np. `gh pr create --help`.
+- GitHub CLI (`gh`) to oficjalne narzędzie GitHuba do obsługi tego, co normalnie robię na stronie (repozytoria, PR, issues, ustawienia). Git zarządza historią kodu; `gh` zarządza platformą GitHub. Odpowiednikiem dla Azure DevOps jest `az devops` (Azure CLI).
 
 ---
 
