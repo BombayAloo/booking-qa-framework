@@ -14,6 +14,14 @@ public class Booking {
     private final String additionalNeeds;
 
     public Booking(String firstname, String lastname, double totalPrice, boolean depositPaid, LocalDate checkIn, LocalDate checkOut, String additionalNeeds) {
+        if (totalPrice <= 0) {
+            throw new IllegalArgumentException("Fields are not filled correctly, price should be more than 0");
+        } else if (!checkOut.isAfter(checkIn)) {
+            throw new IllegalArgumentException("Fields are not filled correctly, check in is after check out");
+        } else if (firstname.isBlank()) {
+            throw new IllegalArgumentException("Fields are not filled correctly, first name can not be empty");
+        }
+
         this.firstname = firstname;
         this.lastname = lastname;
         this.totalPrice = totalPrice;
@@ -21,10 +29,6 @@ public class Booking {
         this.checkIn = checkIn;
         this.checkOut = checkOut;
         this.additionalNeeds = additionalNeeds;
-
-        if(totalPrice <= 0 || checkIn.isAfter(checkOut) || firstname.isEmpty()) {
-            throw new IllegalArgumentException("Fields are not filled correctly, please check your form");
-        }
     }
 
     public int nights() {
