@@ -8,19 +8,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PriceCalculatorTest extends BaseTest {
 
-    @Test void shouldCalculateRegularPrice() {
+    @Test
+    void shouldCalculateRegularPrice() {
         assertThat(new PriceCalculator().calculateTotal(100, 5)).isEqualByComparingTo("500");
     }
 
-    @Test void shouldCalculateRegularPriceForMaxNights() {
+    @Test
+    void shouldCalculateRegularPriceForMaxNights() {
         assertThat(new PriceCalculator().calculateTotal(100, 7)).isEqualByComparingTo("700");
     }
 
-    @Test void shouldCalculateDiscount() {
+    @Test
+    void shouldCalculateDiscount() {
         assertThat(new PriceCalculator().calculateTotal(100, 8)).isEqualByComparingTo("720");
     }
 
-    @Test void shouldRejectZeroNights() {
+    @Test
+    void shouldRejectZeroNights() {
         assertThatThrownBy(() -> new PriceCalculator().calculateTotal(100, 0)).isInstanceOf(IllegalArgumentException.class);
     }
 }

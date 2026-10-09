@@ -15,7 +15,7 @@ public class PriceCalculator {
 
         BigDecimal total = BigDecimal.valueOf(pricePerNight).multiply(BigDecimal.valueOf(nights));
 
-        if(nights >DISCOUNT_THRESHOLD_NIGHTS) {
+        if (nights > DISCOUNT_THRESHOLD_NIGHTS) {
             total = total.multiply(DISCOUNT_MULTIPLIER);
         }
 
