@@ -15,11 +15,11 @@ public class Booking {
 
     public Booking(String firstname, String lastname, double totalPrice, boolean depositPaid, LocalDate checkIn, LocalDate checkOut, String additionalNeeds) {
         if (totalPrice <= 0) {
-            throw new IllegalArgumentException("Fields are not filled correctly, price should be more than 0");
+            throw new IllegalArgumentException("Fields are not filled correctly, price should be more than 0.");
         } else if (!checkOut.isAfter(checkIn)) {
-            throw new IllegalArgumentException("Fields are not filled correctly, check in is after check out");
+            throw new IllegalArgumentException("Fields are not filled correctly, check-out must be after check-in.");
         } else if (firstname.isBlank()) {
-            throw new IllegalArgumentException("Fields are not filled correctly, first name can not be empty");
+            throw new IllegalArgumentException("Fields are not filled correctly, first name can not be empty.");
         }
 
         this.firstname = firstname;

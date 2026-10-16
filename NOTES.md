@@ -15,7 +15,7 @@ Zasady:
 | --- | --- | --- | --- |
 | 0 | Przygotowanie środowiska (CachyOS, Docker, zmienne) | 2026-10-05 | ✅ |
 | 1 | Środowisko Maven i pierwszy test | 2026-10-06 | ✅ |
-| 2 | OOP w praktyce | | |
+| 2 | OOP w praktyce | 2026-10-08 | ✅ |
 | 3 | Kolekcje i generyki | | |
 
 ---
@@ -31,6 +31,10 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 - [ ] `git fetch` vs `git pull`
 - [ ] Gałąź lokalna vs zdalna vs śledzona (upstream)
 - [ ] Dlaczego JUnit tworzy nową instancję klasy testowej dla każdego testu
+- [ ] Interfejs vs klasa abstrakcyjna – 3 różnice i przykład z projektu
+- [ ] Cztery filary OOP – każdy z przykładem z mojego kodu
+- [ ] Kompozycja vs dziedziczenie – dlaczego `BaseTest` zniknie w sesji 8
+- [ ] Modyfikatory dostępu: `private`, brak (package-private), `protected`, `public`
 
 ---
 
@@ -93,6 +97,9 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 | `git mv <z> <do>` | Przeniesienie pliku z zapisem w Gicie |
 | `git branch` / `git branch -a` | Gałęzie lokalne / lokalne i zdalne |
 | `git branch -M main` | Zmiana nazwy bieżącej gałęzi na `main` |
+| `git switch -c <gałąź>` | Utworzenie nowej gałęzi i przejście na nią (starszy zapis: `git checkout -b`) |
+| `git switch main` | Przejście na istniejącą gałąź |
+| `git branch -d <gałąź>` | Usunięcie scalonej gałęzi lokalnej |
 | `git push -u origin main` | Wypchnięcie i ustawienie śledzenia gałęzi zdalnej (potem wystarczy `git push`) |
 | `git remote -v` | Lista repozytoriów zdalnych i ich adresów |
 | `git remote add origin <url>` | Dodanie repozytorium zdalnego |
@@ -168,6 +175,24 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 | Klucz SSH | Para kluczy (prywatny u mnie, publiczny na serwerze) do uwierzytelniania bez hasła |
 | `~/.m2/repository` | Lokalny cache bibliotek pobranych przez Mavena |
 | Conventional Commits | Konwencja opisów commitów: `typ: opis` (`feat`, `fix`, `test`, `refactor`, `docs`, `chore`, `ci`) |
+| Klasa / obiekt | Klasa to szablon (np. `Booking`); obiekt to konkretna instancja utworzona przez `new` |
+| Konstruktor | Specjalna metoda wywoływana przy `new`; ustawia pola i może walidować dane |
+| Enkapsulacja | Ukrywanie stanu obiektu (pola `private`) i udostępnianie go tylko przez metody, które pilnują poprawności |
+| Dziedziczenie | Klasa przejmuje pola i metody innej klasy (`extends`); w Javie tylko jedna klasa bazowa |
+| Polimorfizm | Jeden typ (np. `Authenticator`), wiele implementacji; kod działa na typie, nie na konkretnej klasie |
+| Abstrakcja | Pokazywanie „co” robi obiekt, ukrywanie „jak” (interfejsy, klasy abstrakcyjne) |
+| Interfejs | Kontrakt: lista metod do zaimplementowania (`implements`); klasa może implementować wiele interfejsów |
+| Klasa abstrakcyjna | Klasa, której nie można utworzyć przez `new`; może mieć pola, konstruktor i gotowe metody (`extends`) |
+| `@Override` | Adnotacja: metoda nadpisuje/implementuje metodę z typu nadrzędnego; kompilator sprawdza poprawność |
+| Kompozycja | Obiekt korzysta z innych obiektów przez pola („ma”), zamiast po nich dziedziczyć („jest”) |
+| Wstrzykiwanie zależności (DI) | Klasa dostaje potrzebne obiekty/dane z zewnątrz (np. przez konstruktor), zamiast tworzyć je sama |
+| Programowanie do interfejsu | Zmienne i parametry mają typ interfejsu (`Authenticator a = new InMemoryAuthenticator(...)`) |
+| `final` (pole) | Pole można przypisać tylko raz (w konstruktorze) |
+| `static` | Element należy do klasy, nie do obiektu (np. stałe `private static final`) |
+| Fake (atrapa) | Uproszczona, działająca implementacja do testów (np. `InMemoryAuthenticator` zamiast prawdziwego API) |
+| UUID | Losowy 128-bitowy identyfikator, praktycznie unikalny; `UUID.randomUUID()` |
+| Off-by-one | Błąd o jeden (np. liczenie dni zamiast nocy); wykrywają go testy wartości brzegowych |
+| `LocalDate` / `ChronoUnit.DAYS.between` | Data bez czasu i strefy / liczba dni między datami (koniec nie wliczony) |
 
 ---
 
@@ -181,6 +206,11 @@ Odhaczam, gdy umiem wytłumaczyć temat na głos bez notatek.
 | `BigDecimal` dla kwot | `double`, `long` w groszach | `double` jest niedokładny przy ułamkach dziesiętnych |
 | Hasło API w zmiennej środowiskowej | Hasło w kodzie / pliku | Sekret nie trafia do repozytorium; ten sam kod działa lokalnie i w CI |
 | Restful Booker w Dockerze | Publiczna instancja | Niezależność od dostępności internetu i resetów publicznego serwera |
+| Walidacja w konstruktorze `Booking` | Osobna metoda `validate()`, walidacja w setterach | Niepoprawny obiekt nie może powstać (fail fast); brak setterów = obiekt niezmienny |
+| Mapa użytkowników przez konstruktor | Mapa na sztywno w klasie | Testy podają własne dane (dependency injection) |
+| Wspólny komunikat dla złego loginu i hasła | Osobne komunikaty | Utrudnia sprawdzanie, które loginy istnieją |
+| `BaseTest` jako klasa przejściowa | Od razu extension | Ćwiczenie dziedziczenia; w sesji 8 zamiana na extension (kompozycja) |
+| Praca na gałęziach i PR od sesji 2 | Commity prosto do `main` | Nawyk z pracy zespołowej, przygotowanie do branch policies w sesji 33 |
 
 ---
 
@@ -342,15 +372,115 @@ Rzeczy, które nie padły wprost w zadaniach, ale warto je znać po tym etapie.
 
 ---
 
-### Sesja 2 – OOP w praktyce
+### Sesja 2 – OOP w praktyce (2026-10-08)
+
+**Co powinienem umieć po tej sesji**
+- [ ] Wyjaśnić 4 filary OOP (enkapsulacja, dziedziczenie, polimorfizm, abstrakcja) na przykładach z projektu
+- [ ] Napisać klasę z prywatnymi polami `final`, konstruktorem i walidacją
+- [ ] Napisać interfejs i jego implementację z `@Override`
+- [ ] Wyjaśnić, kiedy interfejs, a kiedy klasa abstrakcyjna
+- [ ] Przekazać zależność przez konstruktor (dependency injection) zamiast tworzyć ją w środku
+- [ ] Zadeklarować zmienną typem interfejsu (`Authenticator a = new InMemoryAuthenticator(...)`)
+- [ ] Napisać testy walidacji (`assertThatThrownBy`) i testy wartości (`assertThat(...).isEqualTo`)
+- [ ] Dobrać przypadki testowe: zwykły, brzegowy, negatywny, `null`
+- [ ] Pisać testy niezależne od daty uruchomienia (stałe daty zamiast `LocalDate.now()`)
+- [ ] Pracować na gałęzi i scalać przez Pull Request
 
 **Czego się nauczyłem**
-- 
+- Model `Booking` z enkapsulacją: pola `private final`, stan ustawiany tylko w konstruktorze, obiekt niezmienny po utworzeniu.
+- Walidacja w konstruktorze gwarantuje, że niepoprawny obiekt w ogóle nie powstanie – metody (np. `nights()`) nie muszą już sprawdzać danych.
+- `ChronoUnit.DAYS.between(checkIn, checkOut)` liczy noce (dzień wyjazdu nie jest wliczany).
+- Interfejs `Authenticator` (kontrakt „co”) i implementacja `InMemoryAuthenticator` (konkret „jak”) – polimorfizm.
+- Mapa użytkowników jest polem i trafia do klasy przez konstruktor (dependency injection) – w testach mogę podać dowolnych użytkowników.
+- `UUID.randomUUID()` generuje losowy, praktycznie unikalny token.
+- `BaseTest` z `@BeforeEach` i `TestInfo` – JUnit wstrzykuje informacje o teście jako parametr metody. To klasa przejściowa – w sesji 8 zastąpi ją extension.
+- Pracowałem na gałęzi `sesja-2` i scaliłem ją do `main` przez Pull Request.
 
 **Problemy i jak je rozwiązałem**
-- 
+- Nie wiedziałem, gdzie umieścić mapę użytkowników. Mapa to stan obiektu, więc jest polem; metoda tylko ją czyta.
+- Test „liczba nocy > 0” był za słaby – przechodził nawet przy złym wyniku. Zastąpiłem go testem dokładnej wartości i testem brzegowym (1 noc).
+
+**Wnioski z code review (do poprawy na początku sesji 3)**
+- [x] `InMemoryAuthenticator`: warunek `!userName.equals(users.keySet())` porównuje `String` ze zbiorem `Set` – zawsze `false`, więc ta część warunku nic nie robi. Kod działa przypadkiem. Poprawnie: `!users.containsKey(userName) || !users.get(userName).equals(userPassword)`.
+- [ ] `InMemoryAuthenticator`: `null` jako login daje `NullPointerException` (mapy z `Map.of` nie akceptują `null` nawet w `containsKey`). `null` jako hasło działa poprawnie (`IllegalArgumentException`). Dodać obsługę `null` loginu (sesja 5).
+- [x] `Booking`: `checkIn.isAfter(checkOut)` przepuszcza rezerwację z tą samą datą przyjazdu i wyjazdu (0 nocy). Poprawnie: `!checkOut.isAfter(checkIn)`.
+- [x] `Booking`: walidacja przeniesiona na początek konstruktora (guard clause), `isBlank()` zamiast `isEmpty()`.
+- [x] `Booking`: jeden komunikat dla wszystkich błędów – osobny komunikat dla każdego warunku mówi, co jest nie tak.
+- [x] Testy: `LocalDate.now()` sprawia, że wynik zależy od dnia uruchomienia – stałe daty w przyszłości.
+- [x] Testy: nazwa `shouldThrowExceptionWhenNight0OrLess` sprawdza cenę 0, a nie noce; `shouldThrowExceptionWhenCheckoutAfterCheckIn` powinna brzmieć `...WhenCheckoutBeforeCheckIn`.
+- [x] Dopisane testy: złe hasło dla istniejącego użytkownika, checkin = checkout.
+- [ ] Brakujący test: dwa logowania dają różne tokeny.
+- [ ] Testy wyjątków nie sprawdzają komunikatu (`hasMessageContaining`) – nie wiadomo, który warunek rzucił wyjątek.
+- [x] Drobne: usunięte `public` w interfejsie, poprawione formatowanie.
+- [ ] Drobne: `public` przy klasach testowych `BookingTest` i `InMemoryAuthenticatorTest`.
+- [x] Git: usunięta scalona gałąź `sesja-2`.
+- [ ] Git: typy commitów `added:`/`fixed:` – poprawne typy to `feat:`, `test:`, `fix:`.
+- [ ] `Booking`: `null` w imieniu lub datach daje `NullPointerException` – dodać `Objects.requireNonNull` (do zrobienia w sesji 5 razem z wyjątkami).
+- [ ] Testy: `shouldNotGetToken` ma 3 asercje dla 3 różnych przypadków – rozdzielić na osobne testy lub `@ParameterizedTest` (sesja 8).
 
 **Pytania rekrutacyjne**
 
+**P: Wymień cztery filary OOP.**
+O: Enkapsulacja – ukrywanie stanu za metodami (`private` pola w `Booking`). Dziedziczenie – przejmowanie zachowania klasy nadrzędnej (`PriceCalculatorTest extends BaseTest`). Polimorfizm – jeden typ, wiele implementacji (`Authenticator` i `InMemoryAuthenticator`). Abstrakcja – pokazanie „co” bez „jak” (interfejs `Authenticator`).
+
 **P: Interfejs czy klasa abstrakcyjna – kiedy którego używam?**
-O: 
+O: Interfejs, gdy definiuję kontrakt, który mogą spełniać niezwiązane klasy; klasa może implementować wiele interfejsów. Klasa abstrakcyjna, gdy klasy są blisko spokrewnione i chcę współdzielić stan (pola) i gotowy kod; można dziedziczyć tylko po jednej. Od Javy 8 interfejsy mogą mieć metody `default`, ale nadal nie mają stanu (pól instancji) ani konstruktora.
+
+**P: Czym jest enkapsulacja i po co ją stosować?**
+O: Pola są prywatne, a dostęp do nich jest kontrolowany przez konstruktor i metody. Dzięki temu obiekt pilnuje swojej poprawności – np. `Booking` nie pozwoli ustawić ujemnej ceny, bo nikt nie zmieni pola z zewnątrz.
+
+**P: Czym jest dependency injection i dlaczego ułatwia testowanie?**
+O: Klasa dostaje zależności z zewnątrz (np. przez konstruktor), zamiast tworzyć je sama. W testach mogę podać atrapę lub własne dane – `InMemoryAuthenticator` dostaje mapę użytkowników, więc każdy test może mieć innych użytkowników.
+
+**P: Dlaczego walidować dane w konstruktorze?**
+O: Żeby niepoprawny obiekt nigdy nie powstał (fail fast). Błąd pojawia się w miejscu, gdzie powstał, a nie później w zupełnie innej części kodu.
+
+**P: Kompozycja czy dziedziczenie?**
+O: Domyślnie kompozycja („ma”): jest elastyczniejsza, a klasa może składać wiele zachowań. Dziedziczenie („jest”) wiąże klasy na stałe i w Javie pozwala tylko na jedną klasę bazową. W JUnit dlatego zamiast `BaseTest` stosuje się extensions (`@ExtendWith`), które można łączyć.
+
+**P: Dlaczego komunikat błędu logowania nie powinien mówić, czy zły był login, czy hasło?**
+O: Inny komunikat dla nieznanego loginu pozwala atakującemu sprawdzić, które loginy istnieją (user enumeration). Jeden wspólny komunikat utrudnia atak.
+
+**P: Dlaczego `LocalDate.now()` w teście to zły pomysł?**
+O: Wynik testu zależy od dnia uruchomienia – test może przechodzić dziś i nie przechodzić jutro (np. przy granicy miesiąca lub gdy data „w przyszłości” stanie się przeszłością). Testy muszą być deterministyczne: te same dane wejściowe zawsze dają ten sam wynik.
+
+---
+
+### Wiedza dodatkowa po sesji 2
+
+**Modyfikatory dostępu**
+
+| Modyfikator | Widoczny w |
+| --- | --- |
+| `private` | Tylko w tej klasie |
+| brak (package-private) | W tym samym pakiecie – dlatego testy w tym samym pakiecie mają dostęp |
+| `protected` | W pakiecie i w klasach dziedziczących |
+| `public` | Wszędzie |
+
+Zasada: najwęższy możliwy dostęp. Metody w interfejsie są domyślnie `public` i `abstract`, więc nie trzeba tego pisać.
+
+**`final` i `static`**
+- `final` przy polu: przypisanie tylko raz. Przy klasie: nie można po niej dziedziczyć (np. `String`). Przy metodzie: nie można jej nadpisać.
+- `static`: należy do klasy, a nie do obiektu. Stałe zapisuje się jako `private static final` wielkimi literami (`DISCOUNT_THRESHOLD_NIGHTS`).
+
+**Obsługa `null`**
+- `Objects.requireNonNull(value, "firstname must not be null")` – czytelny wyjątek zamiast przypadkowego `NullPointerException`.
+- Bezpieczne porównanie: `"stała".equals(zmienna)` lub `Objects.equals(a, b)` zamiast `zmienna.equals(...)`.
+- `isBlank()` (od Javy 11) traktuje tekst ze spacjami jako pusty; `isEmpty()` – nie.
+
+**SOLID – zapowiedź (pełny temat w sesji 30)**
+- S – Single Responsibility: klasa ma jeden powód do zmiany (`Booking` przechowuje rezerwację, nie loguje użytkowników).
+- O – Open/Closed: rozszerzam przez nowe klasy (nowa implementacja `Authenticator`), nie modyfikuję istniejących.
+- L – Liskov Substitution: każdą implementację interfejsu da się podstawić bez zmiany zachowania programu.
+- I – Interface Segregation: małe, konkretne interfejsy zamiast jednego dużego.
+- D – Dependency Inversion: zależę od abstrakcji (`Authenticator`), nie od konkretu (`InMemoryAuthenticator`).
+
+**Projektowanie przypadków testowych**
+- Dla każdej reguły walidacji: przypadek poprawny, wartość graniczna, wartość niepoprawna, `null`.
+- Każdy warunek walidacji testuję osobno – jeden test łamie jedną regułę, reszta danych jest poprawna. Inaczej nie wiem, który warunek faktycznie zadziałał.
+- Asercja wyjątku sprawdza też komunikat (`hasMessageContaining`) – to potwierdza, że wyjątek rzucił właściwy warunek.
+
+**Git – praca na gałęziach**
+- Gałąź funkcjonalna (`sesja-2`, `feature/...`) → Pull Request → review → scalenie do `main`.
+- Po scaleniu gałąź usuwam (lokalnie `git branch -d sesja-2`, zdalnie `git push origin --delete sesja-2`; na GitHubie przycisk „Delete branch” po scaleniu PR).
+- Commit merge („Merge pull request #1”) łączy historie dwóch gałęzi.

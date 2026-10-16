@@ -11,22 +11,22 @@ public class BookingTest {
 
     @Test
     void shouldThrowExceptionWhenPrice0OrLess() {
-        assertThatThrownBy(() -> new Booking("A", "b", 0, true, LocalDate.parse("2024-12-12"), LocalDate.parse("2024-12-13"), "Nothing")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Booking("A", "b", 0, true, LocalDate.parse("2024-12-12"), LocalDate.parse("2024-12-13"), "Nothing")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("price");
     }
 
     @Test
     void shouldThrowExceptionWhenCheckInAfterCheckout() {
-        assertThatThrownBy(() -> new Booking("A", "b", 200.00, true, LocalDate.parse("2024-12-13"), LocalDate.parse("2024-12-12"), "Nothing")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Booking("A", "b", 200.00, true, LocalDate.parse("2024-12-13"), LocalDate.parse("2024-12-12"), "Nothing")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("check");
     }
 
     @Test
     void shouldThrowExceptionWhenCheckInAndCheckoutSameDay() {
-        assertThatThrownBy(() -> new Booking("A", "b", 200.00, true, LocalDate.parse("2024-12-13"), LocalDate.parse("2024-12-13"), "Nothing")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Booking("A", "b", 200.00, true, LocalDate.parse("2024-12-13"), LocalDate.parse("2024-12-13"), "Nothing")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("check");
     }
 
     @Test
     void shouldThrowExceptionWhenNameEmpty() {
-        assertThatThrownBy(() -> new Booking("", "b", 200.00, true, LocalDate.parse("2024-12-12"), LocalDate.parse("2024-12-13"), "Nothing")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Booking("", "b", 200.00, true, LocalDate.parse("2024-12-12"), LocalDate.parse("2024-12-13"), "Nothing")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("name");
     }
 
     @Test
